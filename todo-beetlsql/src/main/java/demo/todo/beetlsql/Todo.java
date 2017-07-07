@@ -4,6 +4,7 @@ import static act.controller.Controller.Util.notFoundIfNull;
 
 import javax.inject.Inject;
 
+import act.util.DisableFastJsonCircularReferenceDetect;
 import org.beetl.sql.core.OnConnection;
 import org.osgl.mvc.annotation.DeleteAction;
 import org.osgl.mvc.annotation.GetAction;
@@ -16,6 +17,7 @@ import act.Act;
  * A Simple Todo application controller
  */
 @SuppressWarnings("unused")
+@DisableFastJsonCircularReferenceDetect()
 public class Todo {
 
     @Inject
