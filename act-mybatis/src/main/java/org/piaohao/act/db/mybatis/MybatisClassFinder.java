@@ -52,7 +52,7 @@ public class MybatisClassFinder {
 
     //@AnnotatedClassFinder(value = Mapper.class, noAbstract = false, callOn = AppEventId.PRE_START)
     @SubClassFinder(value = BaseMapper.class, noAbstract = false, callOn = AppEventId.PRE_START)
-    public void foundMapper(Class<?> mapperClass) {
+    public void foundMapper(Class<? extends BaseMapper> mapperClass) {
         DbServiceManager dbServiceManager = app.dbServiceManager();
         DbService dbService = dbServiceManager.dbService("mybatis");
         ((MybatisService) dbService).prepareMapperClass(mapperClass);

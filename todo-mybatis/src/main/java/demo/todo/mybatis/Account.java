@@ -4,7 +4,6 @@ package demo.todo.mybatis;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.beetl.sql.core.annotatoin.AutoID;;
 
 @Entity
 public class Account {
@@ -17,7 +16,6 @@ public class Account {
     public Account() {
     }
 
-    @AutoID //beetlsql 注解
     public Long getId() {
         return id;
     }

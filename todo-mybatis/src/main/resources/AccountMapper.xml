@@ -4,4 +4,7 @@
     <select id="selectAll" resultType="demo.todo.mybatis.Account" >
         select * from account
     </select>
+    <insert id="save" >
+        insert into account (name,password) values ('act','123')
+    </insert>
 </mapper>

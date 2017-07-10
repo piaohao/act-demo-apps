@@ -6,12 +6,14 @@ import act.db.Dao;
 import act.db.sql.DataSourceConfig;
 import act.db.sql.SqlDbService;
 import act.db.sql.util.NamingConvention;
+import org.apache.ibatis.binding.MapperMethod;
+import org.apache.ibatis.binding.MapperProxy;
+import org.apache.ibatis.binding.MapperProxyFactory;
+import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.beetl.sql.core.annotatoin.Table;
@@ -28,7 +30,9 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -40,7 +44,8 @@ public class MybatisService extends SqlDbService {
 
     public static final String DEF_LOADER_PATH = "/sql";
 
-    SqlSessionFactory sqlSessionFactory;
+    private SqlSessionFactory sqlSessionFactory;
+    private SqlSession sqlSession;
     private ConcurrentMap<Class, Object> mapperMap = new ConcurrentHashMap<>();
     //private ConnectionSource connectionSource;
 
@@ -116,7 +121,7 @@ public class MybatisService extends SqlDbService {
         return mapperMap.get(mapperClass);
     }
 
-    public void prepareMapperClass(Class<?> mapperClass) {
+    public void prepareMapperClass(Class<? extends BaseMapper> mapperClass) {
 //        Object o = Proxy.newProxyInstance(mapperClass.getClassLoader(),
 //                new Class<?>[]{mapperClass},
 //                new MapperJavaProxy(new DefaultMapperBuilder(beetlSql), beetlSql, mapperClass));
@@ -130,16 +135,50 @@ public class MybatisService extends SqlDbService {
 //                return mapper;
 //            }
 //        });
-        SqlSession sqlSession = sqlSessionFactory.openSession();
-        Object mapper = sqlSession.getMapper(mapperClass);
-        mapperMap.put(mapperClass, mapper);
-        //        Genie genie = Act.getInstance(Genie.class);
-//        genie.registerProvider(mapperClass, new Provider() {
-//            @Override
-//            public Object get() {
-//                return mapper;
+        if (sqlSession == null) {
+            sqlSession = sqlSessionFactory.openSession();
+        }
+        String canonicalName = mapperClass.getCanonicalName();
+        BaseMapper mapperBean = null;
+        try {
+            //mapperBean = $.cast(sqlSession.getMapper(Class.forName(canonicalName)));
+            MapperProxy mapperProxy = new MapperProxy(sqlSession, mapperClass, new ConcurrentHashMap<Method, MapperMethod>());
+            mapperBean = $.cast(Proxy.newProxyInstance(mapperClass.getClassLoader(), new Class[]{mapperClass}, mapperProxy));
+        } catch (Exception e) {
+            return;
+        }
+        mapperMap.put(mapperClass, mapperBean);
+
+
+//        Configuration configuration = sqlSession.getConfiguration();
+//        //configuration.addMapper();
+//        MapperRegistry mapperRegistry = configuration.getMapperRegistry();
+//        Collection<Class<?>> mappers = mapperRegistry.getMappers();
+////        MapperProxyFactory mapperBean = null;
+//        BaseMapper mapperBean = null;
+//        for (Class<?> mapper : mappers) {
+//            String canonicalName = mapper.getCanonicalName();
+//            if (mapperClass.getCanonicalName().equals(canonicalName)) {
+//                //MapperProxyFactory factory = $.cast(sqlSession.getMapper(mapper));
+//                //Object mapper1 = mapperRegistry.getMapper(mapper, sqlSession);
+//                try {
+//                    mapperBean = $.cast(sqlSession.getMapper(Class.forName(canonicalName)));
+//                } catch (ClassNotFoundException e) {
+//                    return;
+//                }
+////                mapperBean = $.cast(mapper1);
+////                mapperBean = sqlSession.getMapper(mapper);
+//                mapperMap.put(mapperClass, mapperBean);
+//                break;
 //            }
-//        });
+//        }
+//        Object mapper = sqlSession.getMapper(mapperClass);
+//        mapperMap.put(mapperClass, mapper);
+        if (mapperBean != null) {
+            Genie genie = Act.getInstance(Genie.class);
+            BaseMapper finalMapperBean = $.cast(mapperBean);
+            genie.registerProvider(mapperClass, (Provider) () -> finalMapperBean);
+        }
     }
 
 //    private NameConversion configureNamingConvention() {

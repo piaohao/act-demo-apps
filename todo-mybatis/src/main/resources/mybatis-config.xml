@@ -15,7 +15,7 @@
         </environment>
     </environments>
     <mappers>
-        <!--<mapper resource="/AccountMapper.xml"/>-->
-        <mapper class="demo.todo.mybatis.AccountMapper"/>
+        <mapper resource="AccountMapper.xml"/>
+        <!--<mapper class="demo.todo.mybatis.AccountMapper"/>-->
     </mappers>
 </configuration>
