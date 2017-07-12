@@ -32,11 +32,6 @@ public class Todo {
         return renderJson(Account.dao.find("select * from account"));
     }
 
-    @GetAction("/save")
-    public RenderText save() {
-        return renderText("mapper.save()");
-    }
-
     @OnAppStart
     public static void onAppStart() {
         MyConfig.init();
