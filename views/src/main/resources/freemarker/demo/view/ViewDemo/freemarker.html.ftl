@@ -5,7 +5,7 @@
 <body>
 <h1>${_app.name()} - ${title}</h1>
 <p>
-  Hello ${who}
+  Hello ${who}${a.toString()}
 </p>
 <ul>
   <#macro opt engine>

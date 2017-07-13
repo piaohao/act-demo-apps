@@ -35,7 +35,8 @@ public class ViewDemo extends Controller.Util {
     }
 
     @GetAction("rythm/error/runtime")
-    public void rythmTemplateRuntimeError() {}
+    public void rythmTemplateRuntimeError() {
+    }
 
     @GetAction("beetl")
     public void beetl() {
@@ -47,7 +48,8 @@ public class ViewDemo extends Controller.Util {
     }
 
     @GetAction("beetl/error/runtime")
-    public void beetlTemplateRuntimeError() {}
+    public void beetlTemplateRuntimeError() {
+    }
 
     @GetAction("velocity")
     public void velocity() {
@@ -66,7 +68,8 @@ public class ViewDemo extends Controller.Util {
 
     @GetAction("freemarker")
     public Result freemarker() {
-        return template(title, who);
+        String a = null;
+        return template(title, who, a);
     }
 
     @GetAction("freemarker/error")

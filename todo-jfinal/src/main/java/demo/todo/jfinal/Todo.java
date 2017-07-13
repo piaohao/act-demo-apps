@@ -1,20 +1,17 @@
 package demo.todo.jfinal;
 
-import static act.controller.Controller.Util.notFoundIfNull;
-import static act.controller.Controller.Util.renderJson;
-import static act.controller.Controller.Util.renderText;
-
-import javax.inject.Inject;
-
+import act.Act;
 import act.job.OnAppStart;
 import act.util.DisableFastJsonCircularReferenceDetect;
 import demo.todo.jfinal.model.Account;
-import org.osgl.mvc.annotation.Before;
 import org.osgl.mvc.annotation.GetAction;
-
-import act.Act;
+import org.osgl.mvc.annotation.With;
 import org.osgl.mvc.result.RenderJSON;
-import org.osgl.mvc.result.RenderText;
+
+import java.util.List;
+
+import static act.controller.Controller.Util.render;
+import static act.controller.Controller.Util.renderJson;
 
 /**
  * A Simple Todo application controller
@@ -23,13 +20,31 @@ import org.osgl.mvc.result.RenderText;
 @DisableFastJsonCircularReferenceDetect()
 public class Todo {
 
-    @GetAction
-    public void home() {
+    public static String rt() {
+        return backendServerError();
+    }
+
+    @GetAction("e500")
+    public static String backendServerError() {
+        // this will trigger a runtime error in the backend
+        return Act.crypto().decrypt("bad-crypted-msg");
     }
 
     @GetAction("/list")
-    public RenderJSON list(String q) {
-        return renderJson(Account.dao.find("select * from account"));
+    public void list(String q) {
+        List<Account> accounts = Account.dao.find("select * from account");
+        Todo todo = new Todo();
+        render(accounts, todo);
+    }
+
+    @GetAction("/save")
+    @With(JFinalTransactional.class)
+    public RenderJSON save() {
+        new Account().set("name", "act test001").set("password", "123").save();
+        if (1 == 1) {
+            throw new RuntimeException("不通过!");
+        }
+        return renderJson("yes");
     }
 
     @OnAppStart
