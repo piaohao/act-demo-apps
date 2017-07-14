@@ -7,6 +7,7 @@ import demo.todo.jfinal.model.Account;
 import org.osgl.mvc.annotation.GetAction;
 import org.osgl.mvc.annotation.With;
 import org.osgl.mvc.result.RenderJSON;
+import org.piaohao.act.jfinal.db.JFinalTransactional;
 
 import java.util.List;
 
@@ -45,11 +46,6 @@ public class Todo {
             throw new RuntimeException("不通过!");
         }
         return renderJson("yes");
-    }
-
-    @OnAppStart
-    public static void onAppStart() {
-        MyConfig.init();
     }
 
     public static void main(String[] args) throws Exception {
