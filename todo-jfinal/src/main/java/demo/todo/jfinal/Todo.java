@@ -43,6 +43,11 @@ public class Todo {
         render(accounts);
     }
 
+    @GetAction
+    public String home(){
+        return "home";
+    }
+
     @GetAction("/save")
     @With(JFinalTransactional.class)
     public RenderJSON save() {

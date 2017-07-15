@@ -7,14 +7,19 @@ import com.alibaba.druid.wall.WallFilter;
 //import com.alibaba.dubbo.config.ProtocolConfig;
 //import com.alibaba.dubbo.config.RegistryConfig;
 //import com.alibaba.dubbo.config.ServiceConfig;
+import com.alibaba.fastjson.JSON;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.druid.DruidPlugin;
+import com.xiaoleilu.hutool.util.ClassUtil;
 import demo.todo.jfinal.model.Account;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class MyConfig {
 
-//    @OnAppStart
+    //    @OnAppStart
     public static void init() {
         PropKit.use("common.properties");
         DruidPlugin dp = new DruidPlugin(PropKit.get("jdbc.master.url"), PropKit.get(
@@ -69,4 +74,26 @@ public class MyConfig {
 //        // 暴露及注册服务
 //        service.export();
 //    }
+
+    public static void main(String[] args) throws NoSuchMethodException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+//        Method method = ClassUtil.getDeclaredMethod(MappingKit.class, "init", new Class[]{ActiveRecordPlugin.class});
+//        Method[] methods = ClassUtil.getDeclaredMethods(MappingKit.class);
+//        Method[] methods1 = MappingKit.class.getDeclaredMethods();
+
+        PropKit.use("common.properties");
+        DruidPlugin dp = new DruidPlugin(PropKit.get("jdbc.master.url"), PropKit.get(
+                "jdbc.master.username"), PropKit.get("jdbc.master.password"));
+        dp.setTestOnBorrow(true);
+        dp.setTestWhileIdle(true);
+        dp.setTestOnReturn(true);
+        dp.addFilter(new StatFilter());
+        WallFilter wall = new WallFilter();
+        wall.setDbType("mysql");
+        dp.addFilter(wall);
+        Class<?> clazz = Class.forName("demo.todo.jfinal.MappingKit");
+        Method method = clazz.getDeclaredMethod("init", new Class[]{ActiveRecordPlugin.class});
+        ActiveRecordPlugin arp = new ActiveRecordPlugin(dp);
+        method.invoke(null, new Object[]{arp});
+        System.out.println(JSON.toJSONString(method));
+    }
 }
