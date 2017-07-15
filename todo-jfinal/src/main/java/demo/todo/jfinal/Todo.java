@@ -7,8 +7,10 @@ import demo.todo.jfinal.model.Account;
 import org.osgl.mvc.annotation.GetAction;
 import org.osgl.mvc.annotation.With;
 import org.osgl.mvc.result.RenderJSON;
+import org.piaohao.act.jfinal.db.JFinalDao;
 import org.piaohao.act.jfinal.db.JFinalTransactional;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import static act.controller.Controller.Util.render;
@@ -20,6 +22,9 @@ import static act.controller.Controller.Util.renderJson;
 @SuppressWarnings("unused")
 @DisableFastJsonCircularReferenceDetect()
 public class Todo {
+
+    @Inject
+    private JFinalDao<Integer, Account> accountDao;
 
     public static String rt() {
         return backendServerError();
@@ -33,9 +38,9 @@ public class Todo {
 
     @GetAction("/list")
     public void list(String q) {
-        List<Account> accounts = Account.dao.find("select * from account");
-        Todo todo = new Todo();
-        render(accounts, todo);
+//        List<Account> accounts = Account.dao.find("select * from account");
+        Iterable<Account> accounts = accountDao.findAll();
+        render(accounts);
     }
 
     @GetAction("/save")
