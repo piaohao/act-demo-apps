@@ -3,6 +3,8 @@ package demo.todo.jfinal;
 import act.Act;
 import act.job.OnAppStart;
 import act.util.DisableFastJsonCircularReferenceDetect;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import demo.todo.jfinal.model.Account;
 import org.osgl.mvc.annotation.GetAction;
 import org.osgl.mvc.annotation.With;
@@ -15,6 +17,7 @@ import java.util.List;
 
 import static act.controller.Controller.Util.render;
 import static act.controller.Controller.Util.renderJson;
+import static act.controller.Controller.Util.renderText;
 
 /**
  * A Simple Todo application controller
@@ -44,8 +47,15 @@ public class Todo {
     }
 
     @GetAction
-    public String home(){
-        return "home";
+    public void home() {
+        List<Record> accounts = Db.find("select * from account");
+        renderJson(accounts);
+    }
+
+    @GetAction("/dao")
+    public void dao() {
+        List<Account> accounts = accountDao.dao().find("SELECT * FROM account LIMIT 2");
+        renderJson(accounts);
     }
 
     @GetAction("/save")
@@ -59,7 +69,7 @@ public class Todo {
     }
 
     public static void main(String[] args) throws Exception {
-        Act.start("TODO-MyBatis");
+        Act.start("TODO-JFinal");
     }
 
 
